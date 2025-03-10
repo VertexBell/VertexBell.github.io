@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VertexBell - Games</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="games.html">Juegos</a></li>
+            <li><a href="software.html">Software</a></li>
+            <li><a href="about.html">Acerca de VertexBell</a></li>
+        </ul>
+    </nav>
+
+    <header>
+        <h1>Juegos Disponibles</h1>
+    </header>
+
+    <main>
+        <section id="games-section">
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 VertexBell</p>
+    </footer>
+
+    <script>
+        fetch('shop.txt')
+            .then(response => response.text())
+            .then(data => {
+                const gamesSection = document.getElementById('games-section');
+                const gamesData = parseShopData(data, 'Games');
+
+                gamesData.forEach(game => {
+                    const gameDiv = document.createElement('div');
+                    gameDiv.innerHTML = `
+                        <h3>${game.name}</h3>
+                        <img src="${game.image}" alt="${game.name}" width="200">
+                        <p>Precio: ${game.price}</p>
+                    `;
+                    gamesSection.appendChild(gameDiv);
+                });
+            });
+
+        function parseShopData(data, sectionName) {
+            const sectionRegex = new RegExp(`\[Section: ${sectionName}\]\s*\{([\s\S]*?)\}`, 'g');
+            const sectionMatch = sectionRegex.exec(data);
+
+            if (!sectionMatch) {
+                return [];
+            }
+
+            const itemsData = sectionMatch[1];
+            const itemRegex = new RegExp(`\[(Game|Software):\s*"("NaN"*?)"]\s*\{([\s\S]*?)\}`, 'g');
+            let itemMatch;
+            const items = [];
+
+            while ((itemMatch = itemRegex.exec(itemsData)) !== null) {
+                const itemName = itemMatch[2];
+                const itemDetails = itemMatch[3];
+
+                const imageRegex = /<image:\s*"(.*?)">/;
+                const priceRegex = /<price:\s*"(.*?)">/;
+
+                const imageMatch = imageRegex.exec(itemDetails);
+                const priceMatch = priceRegex.exec(itemDetails);
+
+                const image = imageMatch ? imageMatch[1] : '';
+                const price = priceMatch ? priceMatch[1] : '';
+
+                items.push({ name: itemName, image: image, price: price });
+            }
+
+            return items;
+        }
+    </script>
+</body>
+</html>
