@@ -1,0 +1,39 @@
+<section/software> {
+	<software/>
+		[name: "VSCO"],
+		[price: "US$ 05"],
+		[short-desc: "Un programa para programar programas"] 
+# what show on open		[contents: { 
+					showName: true;
+					showPrice: true;
+					icon: "https://icon.me";
+					images:
+					   - "https://photo1",
+					   - "https://photo2";
+    					longDescription(
+						- "VSCO Es un programa de codigo cerrado"
+						- "que sirve para crear aplicaciones de pc"
+						- "usando un lenguaje simplificado" 
+ 					).font["arial black"]::size[11]::color["light gray"];
+				}],
+	</software>;
+}.sectionEnd<>
+
+<section/games{
+	<game/>
+		[name: "Boblox"],
+		[price: "US$ 805"],
+		[short-desc: "Un juego para retrasados"] 
+# what show on open		[contents: { 
+					showName: true;
+					showPrice: true;
+					icon: "https://icon.me";
+					images:
+					   - "https://photo1"
+					   - "https://photo2"
+    					longDescription(
+						- "No lo jueges"
+ 					).font["arial black"]::size[11]::color["light gray"];
+				}],
+	</game>;
+}.sectionEnd<>

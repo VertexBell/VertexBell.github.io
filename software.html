@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VertexBell - Software</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap">
+</head>
+<body>
+    <header>
+        <h1>VertexBell</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="games.html">Games</a></li>
+                <li><a href="software.html" class="active">Software</a></li>
+                <li><a href="dflop.html">DFlop</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="software">
+            <h2>Our Software</h2>
+            <div class="software-list">
+                <div class="software-item" onclick="toggleDetails(this)">
+                    <img src="https://icon.me" alt="VSCO">
+                    <h3>VSCO</h3>
+                    <p>Un programa para programar programas</p>
+                    <p class="price" data-price="05">Price: US$ 05</p>
+                    <a href="#" class="button">Download</a>
+                    <div class="details hidden">
+                        <img src="https://photo1" alt="VSCO Screenshot 1">
+                        <img src="https://photo2" alt="VSCO Screenshot 2">
+                        <p style="font-family: 'Arial Black'; font-size: 11px; color: lightgray;">
+                            VSCO es un programa de código cerrado que sirve para crear aplicaciones de PC usando un lenguaje simplificado.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 VertexBell</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".software-item").forEach(item => {
+                let price = item.querySelector(".price").getAttribute("data-price");
+                let button = item.querySelector(".button");
+                button.textContent = (price === "null") ? "Comprar" : "Download";
+            });
+        });
+
+        function toggleDetails(element) {
+            element.querySelector(".details").classList.toggle("hidden");
+        }
+    </script>
+
+    <style>
+        .hidden { display: none; }
+        .details img { width: 100px; margin: 5px; }
+    </style>
+</body>
+</html>

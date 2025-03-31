@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VertexBell - Games</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap">
+</head>
+<body>
+    <header>
+        <h1>VertexBell</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="games.html" class="active">Games</a></li>
+                <li><a href="software.html">Software</a></li>
+                <li><a href="dflop.html">DFlop</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="games">
+            <h2>Our Games</h2>
+            <div class="game-list">
+                <div class="game-item" onclick="toggleDetails(this)">
+                    <img src="https://icon.me" alt="Boblox">
+                    <h3>Boblox</h3>
+                    <p>Un juego para retrasados</p>
+                    <p class="price" data-price="805">Price: US$ 805</p>
+                    <a href="#" class="button">Play Now</a>
+                    <div class="details hidden">
+                        <img src="https://photo1" alt="Boblox Screenshot 1">
+                        <img src="https://photo2" alt="Boblox Screenshot 2">
+                        <p style="font-family: 'Arial Black'; font-size: 11px; color: lightgray;">
+                            No lo juegues.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 VertexBell</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".game-item").forEach(item => {
+                let price = item.querySelector(".price").getAttribute("data-price");
+                let button = item.querySelector(".button");
+                button.textContent = (price === "null") ? "Comprar" : "Play Now";
+            });
+        });
+
+        function toggleDetails(element) {
+            element.querySelector(".details").classList.toggle("hidden");
+        }
+    </script>
+
+    <style>
+        .hidden { display: none; }
+        .details img { width: 100px; margin: 5px; }
+    </style>
+</body>
+</html>
