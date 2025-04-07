@@ -35,14 +35,42 @@
                 
                 <h3>Example Code</h3>
                 <pre>                    <code>                                                                 
-{
-    "type": "directory",
-    "children": {
-        "example.txt": {
-            "type": "file",
-            "content": "example text\n\njust for texting"
-        }
-    }
+*<this is a comment>*
+*<is for make anotation for when an user decompiles a file he can see the author notes>*
+*<author notes is a file generated when .dflop decompiles>*
+*<in there all this comments will be shown>*
+
+*<if you see somethin like this " /{this is a dev comment}\ " is a comment of the .dflop, this comment
+*<is deleted when the file is decompiled>*
+
+["crop.dflop"] <
+
+    [files] <
+        [dir="carpeta1"=C:/dir/dir/carpeta1] <
+            [file="penis.txt"] <
+                [cntnt] <
+                    1: "hey, this is a text line", /{line 1}\
+                    2: "so, im a test .dflop file",
+                    3: "this will enhance the AI programing use",
+                    4: "Thanks for reading!",
+                    5->10: "", /{From line 5 to 10 everything will be the same, in this case all empty}\
+                    6: "@Author -> Enttbot";
+                    >
+            >
+            [file="example.txt"] <
+                [cntnt] <
+                    1: "just an example bro",
+                    2->20: "";
+                >
+            >
+        >
+    >
+
+    [propierties] <
+        deleteOnDec: f
+        password: "ng44" /{cambia esto, deberia estar cifrado con una key: DFLOPENCRYPTEDULTRASECRETFILE2343541236547698347}\
+    >
+>
 }</code>
                 </pre>
 
