@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>VertexBell</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap">
+</head>
+<body style="opacity:0;">
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+    <div id="bg-grain" aria-hidden="true"></div>
+    <script src="bg.js" defer></script>
+    <header>
+        <div class="header-inner">
+            <div class="logo-wrap">
+                <img src="VB logo.svg" alt="VB logo" class="logo">
+            </div>
+            <div class="nav-wrap">
+                <nav>
+                    <ul>
+                        <li><a href="#home" data-route="home" class="nav-link">Home</a></li>
+                        <li><a href="#products" data-route="products" class="nav-link">Products</a></li>
+                        <li><a href="#contact" data-route="contact" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- HOME -->
+        <section id="page-home" data-page="home" style="display:block;">
+            <section class="hero">
+                <h2>Welcome User</h2>
+                <div class="subtitle">VertexBell Web Hub</div>
+            </section>
+
+            <section class="last-news">
+                <h3>Last News</h3>
+                <div id="news-list" class="featured-grid">
+                    <!-- News items will be injected here -->
+                </div>
+            </section>
+        </section>
+
+        <!-- PRODUCTS -->
+        <section id="page-products" data-page="products" style="display:none;">
+            <div class="hero">
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;">
+                    <button id="btn-games" class="cta-button" aria-pressed="true">Games</button>
+                    <button id="btn-software" class="cta-button" aria-pressed="false">Software</button>
+                </div>
+            </div>
+
+            <section id="products-section">
+                <div id="games-pane" class="games" style="display:block; margin-top:1rem;">
+                    <h3 style="color:var(--accent); margin-bottom:0.75rem;">Games</h3>
+                    <div id="games-list" class="game-list"></div>
+                </div>
+
+                <div id="software-pane" class="software" style="display:none; margin-top:1rem;">
+                    <h3 style="color:var(--accent); margin-bottom:0.75rem;">Software</h3>
+                    <div id="software-list" class="software-list"></div>
+                </div>
+            </section>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="page-contact" data-page="contact" style="display:none;">
+            <section class="contact" style="text-align:center; padding:2.5rem 1rem;">
+                <h2>We´re working here, sorry!</h2>
+                <div style="margin-top:1rem;">
+                    <a href="doom.html" class="button" role="button">Watch Magic 😉</a>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

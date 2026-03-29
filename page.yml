@@ -1,0 +1,27 @@
+last_news:
+  - title: Site Relaunch
+    summary: We refreshed the site layout, updated navigation and added a Last News feed.
+    
+  - title: New Software Release: VSCO
+    summary: VSCO v1.0 is now available for download on the Software page.
+    image: "::img:: https://tse1.mm.bing.net/th/id/OIP.Z7qqep8HwntHqQbD085VVAHaEO?cb=thfc1&rs=1&pid=ImgDetMain&o=7&rm=3 ::/img::"
+
+products:
+  1:
+    title: "Boblox"
+    section: "games"
+    price: "US$ 10"
+    discount: "US$ 6"
+    summary: "Un juego con desafíos y humor irreverente."
+    description: "Boblox es un juego de plataformas con puzzles, niveles generados y humor irreverente. Controles simples, jefes creativos y coleccionables."
+    images: "::img:: https://via.placeholder.com/640x480?text=Boblox+1 ::/img::, ::img:: https://via.placeholder.com/640x480?text=Boblox+2 ::/img::"
+    image: "::img:: https://via.placeholder.com/640x480?text=Boblox+Cover ::/img::"
+  2:
+    title: "VSCO"
+    section: "software"
+    price: "US$ 0"
+    free: true
+    summary: "Un programa para programar programas; código cerrado."
+    description: "VSCO es una utilidad ligera para gestionar y compilar proyectos, con export y versiones. Gratis para uso personal."
+    images: "::img:: https://via.placeholder.com/640x480?text=VSCO+1 ::/img::, ::img:: https://via.placeholder.com/640x480?text=VSCO+2 ::/img::"
+    image: "::img:: https://via.placeholder.com/640x480?text=VSCO+Cover ::/img::"

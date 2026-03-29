@@ -1,0 +1,664 @@
+/* Base typography and layout */
+:root{
+    --bg:#121212;
+    --panel:#212121;
+    --muted:#ddd;
+    --accent:#ffc107;
+    --max-width:1100px;
+    --gap:1rem;
+
+    /* additional visual tuning */
+    --card-radius: 10px;
+    --soft-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    --glass: rgba(255,255,255,0.03);
+    --focus: rgba(255,205,70,0.16);
+    --grain-opacity: 0.04;
+    --logo-float-dist: 6px;
+
+    /* dynamic header height (updated by script) */
+    --header-height: 76px;
+}
+
+*{box-sizing:border-box}
+
+/* Reserve scrollbar space to prevent layout/resizer shifts when scrollbars appear/disappear */
+html {
+    /* Keep a vertical scrollbar gutter stable (modern browsers) */
+    scrollbar-gutter: stable;
+    /* Ensure a scrollbar track is always present so viewport width doesn't jump */
+    overflow-y: scroll;
+}
+
+body {
+    font-family: 'Roboto Mono', monospace;
+    background-color: var(--bg);
+    color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    font-size: clamp(14px, 1.6vw, 18px);
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background-color: rgba(0,0,0,0.85);
+    padding: clamp(0.5rem, 1.2vw, 1rem);
+    border-bottom: 1px solid rgba(255,193,7,0.07);
+    animation: fadeIn 900ms ease-out;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 9999;
+    backdrop-filter: blur(6px) saturate(1.05);
+    -webkit-backdrop-filter: blur(6px) saturate(1.05);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.45);
+}
+
+.header-inner {
+    /* stack logo above nav so logo appears centered at the top */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    gap: var(--gap);
+    padding: 0 clamp(0.5rem, 2vw, 1rem);
+    width: 100%;
+}
+
+/* Logo sizing fluid with clamp for responsiveness */
+.logo-wrap { display: flex; align-items: center; flex: 0 0 auto; }
+header .logo {
+    display: inline-block;
+    width: clamp(56px, 10vw, 140px);
+    height: auto;
+    object-fit: contain;
+    margin: 0;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.6));
+    /* subtle float animation */
+    transform-origin: center;
+    animation: floatLogo 6s ease-in-out infinite;
+    will-change: transform;
+}
+
+/* Nav */
+.nav-wrap { flex: 1 1 auto; display:flex; justify-content: center; width:100%; transform: translateX(15px); }
+.nav-wrap nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: clamp(0.5rem, 1.2vw, 1.5rem);
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+nav li {
+    margin: 0;
+    animation: slideIn 0.45s ease-out forwards;
+    opacity: 0;
+}
+
+/* Animation delays (kept) */
+nav li:nth-child(1) { animation-delay: 0.08s; }
+nav li:nth-child(2) { animation-delay: 0.16s; }
+nav li:nth-child(3) { animation-delay: 0.24s; }
+nav li:nth-child(4) { animation-delay: 0.32s; }
+nav li:nth-child(5) { animation-delay: 0.4s; }
+
+nav a {
+    color: #f0f0f0;
+    text-decoration: none;
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    font-size: clamp(13px, 1.2vw, 15px);
+}
+
+nav a:hover {
+    background-color: var(--accent);
+    color: #121212;
+}
+
+nav a.active {
+    background-color: var(--accent);
+    color: #121212;
+    font-weight: bold;
+}
+
+/* Main content area */
+main {
+    /* leave normal responsive padding but add top offset so content sits below the fixed header */
+    padding: clamp(1rem, 3vw, 2rem);
+    /* Use dynamic header height to ensure content never scrolls under header */
+    padding-top: calc(var(--header-height) + clamp(0.5rem, 1.5vw, 1rem));
+    max-width: var(--max-width);
+    margin: 0 auto;
+    width: 100%;
+}
+
+section { margin-bottom: clamp(1rem, 3vw, 2rem); }
+
+/* Hero */
+.hero {
+    text-align: center;
+    padding: clamp(1rem, 4vw, 2.5rem); /* slightly reduced to bring content up */
+    /* Home hero uses a transparent panel so background is removed for the welcome area */
+    background-color: transparent;
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+/* Tighter spacing for the home welcome to reduce gap above/below text */
+#page-home .hero {
+    padding-top: clamp(0.8rem, 3.2vw, 1.6rem);
+    padding-bottom: clamp(0.8rem, 3.2vw, 1.6rem);
+}
+
+#page-home .hero h2 {
+    color: var(--accent);
+    /* slightly larger for the home welcome */
+    font-size: clamp(1.75rem, 4.2vw, 2.5rem);
+    margin-bottom: 0.15rem; /* reduced spacing under the title */
+}
+
+#page-home .hero .subtitle {
+    color: #ffffff;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    margin-top: 0.18rem; /* moved subtitle closer to the title */
+    opacity: 0.95;
+}
+
+.hero p {
+    font-size: clamp(1rem, 2.2vw, 1.2rem);
+    color: var(--muted);
+}
+
+/* Buttons */
+/* Primary form/cta buttons remain filled */
+.button {
+    display: inline-block;
+    padding: clamp(0.45rem, 1.2vw, 0.9rem) clamp(0.8rem, 2.2vw, 2rem);
+    background-color: var(--accent);
+    color: #121212;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 700;
+    transition: background-color 0.2s ease, transform 160ms ease, box-shadow 160ms ease;
+    font-size: clamp(13px, 1.6vw, 15px);
+}
+.button:hover { background-color: #f7b300; }
+
+/* Games/Software CTA: outlined to match nav and header feel, with filled active/pressed state */
+.cta-button {
+    display: inline-block;
+    padding: clamp(0.45rem, 1.2vw, 0.9rem) clamp(0.8rem, 2.2vw, 2rem);
+    background-color: transparent;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px solid rgba(255,193,7,0.12);
+    transition: background-color 180ms ease, color 180ms ease, transform 160ms cubic-bezier(.2,.9,.2,1);
+    font-size: clamp(13px, 1.6vw, 15px);
+    min-width: 88px;
+}
+
+/* Hover gives a subtle tinted background; pressed/active fills with accent */
+.cta-button:hover {
+    background-color: rgba(255,193,7,0.06);
+    color: #fff;
+}
+.cta-button[aria-pressed="true"], .cta-button:active {
+    background-color: var(--accent);
+    color: #121212;
+    border-color: transparent;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    transform: translateY(-2px);
+}
+
+/* Grids */
+/* Default grid used elsewhere */
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px,100%), 1fr));
+    gap: clamp(1rem, 2.5vw, 2rem);
+}
+
+/* For the Last News section we want items stacked one above another */
+.last-news .featured-grid {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.75rem, 2.2vw, 1.25rem);
+}
+
+.featured-item, .games .game-item, .software .software-item {
+    /* slightly less transparent than before for stronger contrast while keeping some translucency */
+    background-color: rgba(33,33,33,0.94);
+    border-radius: 10px;
+    padding: clamp(0.75rem, 2vw, 1.5rem);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    transition: transform 0.25s ease;
+}
+
+.featured-item:hover, .games .game-item:hover, .software .software-item:hover {
+    transform: translateY(-5px);
+}
+
+.featured-item img, .games .game-item img, .software .software-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+}
+
+/* Titles */
+.featured-item h4, .games .game-item h3, .software .software-item h3 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+/* Lists */
+.games .game-list, .software .software-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px,100%), 1fr));
+    gap: clamp(0.75rem, 2vw, 2rem);
+    align-items: start;
+    /* ensure items can form a mosaic by allowing different heights */
+    grid-auto-rows: auto;
+}
+
+/* Dflop styles kept but hidden if not used */
+.dflop article {
+    background-color: var(--panel);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.dflop h3 { color: var(--accent); }
+
+.dflop pre {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+/* Contact form */
+.contact form {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact label { margin-top: 1rem; color: var(--muted); }
+
+.contact input, .contact textarea {
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: clamp(13px, 1.6vw, 15px);
+}
+
+
+
+/* Background canvas (animated geometric shapes) */
+#bg-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none; /* keep interaction to page UI */
+    display: block;
+    filter: contrast(0.98) saturate(1.02) blur(0.2px);
+}
+
+/* reduce grain intensity */
+#bg-grain {
+    opacity: var(--grain-opacity);
+    mix-blend-mode: overlay;
+}
+
+/* card and interactive polish */
+.featured-item, .games .game-item, .software .software-item {
+    /* stronger but still slightly translucent cards for better contrast */
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(33,33,33,0.94));
+    border-radius: var(--card-radius);
+    padding: clamp(0.75rem, 2vw, 1.5rem);
+    box-shadow: var(--soft-shadow);
+    transition: transform 260ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms ease, background-color 260ms ease;
+}
+
+.featured-item:hover, .games .game-item:hover, .software .software-item:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+}
+
+/* hero text motion */
+#page-home .hero h2 {
+    transition: transform 520ms cubic-bezier(.2,.9,.2,1), opacity 520ms ease;
+    transform-origin: center;
+    animation: heroPop 700ms ease both;
+}
+
+#page-home .hero .subtitle {
+    transition: transform 720ms cubic-bezier(.2,.9,.2,1), opacity 720ms ease;
+    animation: subtitleFade 1200ms ease 260ms both;
+}
+
+/* buttons focus */
+.cta-button:focus, .button:focus {
+    outline: none;
+    box-shadow: 0 6px 20px var(--focus);
+    border-radius: 8px;
+    transform: translateY(-1px);
+}
+
+/* small accessibility: respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    header .logo, #page-home .hero h2, #page-home .hero .subtitle, .featured-item { animation: none !important; transition: none !important; transform: none !important; }
+}
+
+/* Grain overlay */
+#bg-grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    opacity: 0.06;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAAC2m3ZfAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAABl0RVh0Q3JlYXRpb24gVGltZQAwNS8yMS8xOWNi7d8AAABQSURBVHja7c8xAQAgEMCw9z9b2g7mQYpQFBC8mAgICAwMDAwMDBw/8eA4J3S0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0Gg0H4A0qQABu1gOXwAAAABJRU5ErkJggg==');
+    background-repeat: repeat;
+    transform: translateZ(0);
+}
+
+/* ensure content above canvas remains visible; header stays fixed, content sits above canvas */
+main, footer {
+    position: relative;
+    z-index: 2;
+}
+
+/* Placeholder Image Style */
+img[src="placeholder.jpg"] {
+    background-color: #444;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Small viewport adjustments */
+@media (max-width: 880px) {
+    .nav-wrap { justify-content:center; transform: translateX(15px); }
+    .header-inner { align-items: center; gap: 0.5rem; }
+    nav ul { justify-content:center; }
+    .logo-wrap { order: -1; } /* logo above nav on small screens */
+}
+
+/* Very small phones: reduce paddings and stack header */
+@media (max-width: 480px) {
+    .header-inner { flex-direction: column; gap: 0.4rem; padding: 0.4rem; }
+    .nav-wrap { width:100%; }
+    nav ul { width:100%; justify-content: space-around; }
+    header .logo { width: clamp(56px, 16vw, 96px); }
+    main { padding: 0.75rem; }
+    .hero { padding: 1rem; }
+}
+
+/* Product card and modal styles */
+.product-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 360px;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 12px;
+    padding: 0;
+}
+.product-image-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+}
+.product-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 360ms cubic-bezier(.2,.9,.2,1);
+}
+.product-card:hover .product-cover { transform: scale(1.03); }
+
+.product-body {
+    padding: 0.9rem;
+    background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.04));
+}
+.product-title { color: var(--accent); margin: 0 0 0.35rem 0; font-size: 1.05rem; }
+.product-price-row { display:flex; gap:0.5rem; align-items:center; margin-bottom:0.45rem; }
+.product-price { font-weight:800; color:#fff; background:transparent; }
+.product-discount { color:#fff; background:rgba(255,193,7,0.12); padding:0.18rem 0.5rem; border-radius:6px; font-weight:700; color:#121212; }
+.product-free { color:#121212; background:var(--accent); padding:0.18rem 0.5rem; border-radius:6px; font-weight:700; }
+
+.product-summary { color: var(--muted); margin: 0; font-size: 0.95rem; }
+
+/* Modal */
+.product-modal {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.65));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 10000;
+    padding: clamp(1rem, 3vw, 2rem);
+    backdrop-filter: blur(6px);
+}
+.product-panel {
+    width: min(1100px, 98%);
+    max-height: 92vh;
+    overflow: auto;
+    background: linear-gradient(180deg, rgba(33,33,33,0.98), rgba(18,18,18,0.98));
+    border-radius: 12px;
+    padding: 1rem;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.product-close {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    font-size: 1.1rem;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+.product-panel-header { padding: 0.5rem 0 0.5rem 0; border-bottom: 1px solid rgba(255,193,7,0.04); margin-bottom: 0.75rem; }
+.product-panel-header h2 { margin:0; color: var(--accent); }
+
+.product-panel-content { display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap; }
+.product-gallery { flex: 1 1 420px; min-width: 300px; }
+.product-main-img { width:100%; height: 360px; object-fit: cover; border-radius:8px; display:block; margin-bottom:0.6rem; }
+.product-thumbs { display:flex; gap:0.5rem; overflow:auto; }
+.product-thumbs img { width:72px; height:56px; object-fit:cover; border-radius:6px; cursor:pointer; opacity:0.9; border:2px solid transparent; }
+.product-thumbs img.active { border-color: var(--accent); opacity:1; }
+
+.product-details { flex: 1 1 320px; min-width:260px; }
+.product-description { color: var(--muted); margin-bottom: 1rem; white-space: pre-wrap; }
+.product-actions { display:flex; gap:0.5rem; align-items:center; }
+.product-action-button {
+    background: var(--accent);
+    color: #121212;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+}
+.product-action-button:hover { transform: translateY(-2px); }
+
+/* Animations */
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+@keyframes slideIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* floating logo */
+@keyframes floatLogo {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(calc(-1 * var(--logo-float-dist))); }
+    100% { transform: translateY(0); }
+}
+
+/* hero entrance */
+@keyframes heroPop {
+    from { transform: translateY(10px) scale(0.98); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* subtitle gentle fade/slide */
+@keyframes subtitleFade {
+    from { transform: translateY(6px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Additional mobile responsiveness tweaks: larger tap targets, stacked nav, reduced paddings */
+@media (max-width: 600px) {
+    header {
+        padding: 0.45rem 0.6rem;
+    }
+
+    /* stack header content vertically but center items so logo sits visually above nav */
+    .header-inner {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    /* Place nav full-width below the logo, keep links in a horizontal/wrapping row for better ergonomics */
+    .nav-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    nav ul {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 720px;
+        padding: 0;
+        margin: 0;
+    }
+
+    nav li { animation: none; opacity: 1; }
+
+    /* make each link a large tap target but allow them to sit side-by-side and wrap when needed */
+    nav a {
+        display: inline-flex;
+        padding: 10px 12px;
+        font-size: 15px;
+        text-align: center;
+        border-radius: 8px;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Make logo smaller and keep it centered */
+    header .logo {
+        width: clamp(48px, 18vw, 96px);
+        margin: 0 auto;
+    }
+
+    /* Bring main content up and reduce vertical padding to fit small screens */
+    main {
+        padding: 0.75rem;
+        padding-top: calc(var(--header-height) + 0.5rem);
+    }
+
+    .hero {
+        padding: 0.9rem 0.6rem;
+    }
+
+    #page-home .hero h2 {
+        font-size: clamp(1.4rem, 5vw, 1.9rem);
+    }
+
+    #page-home .hero .subtitle {
+        font-size: clamp(0.95rem, 3.4vw, 1.05rem);
+    }
+
+    /* Reduce card paddings and image heights for small screens */
+    .featured-item, .games .game-item, .software .software-item {
+        padding: 0.65rem;
+        border-radius: 10px;
+    }
+
+    /* Mosaic layout for products: two columns, smaller cards */
+    .games .game-list, .software .software-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+        align-items: start;
+        grid-auto-rows: auto;
+    }
+
+    .product-card {
+        max-width: none;
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    .product-image-wrap { aspect-ratio: 1 / 1; height: auto; }
+    .product-cover { object-fit: cover; height: 100%; }
+
+    .product-main-img { height: 180px; }
+
+    /* Reduce grid gaps so content fits without scrolling awkwardness */
+    .featured-grid { gap: 0.75rem; }
+
+    /* Ensure header nav doesn't overflow viewport */
+    .nav-wrap { overflow: visible; }
+
+    /* Improve focus/tap hit area */
+    .cta-button, .button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+
+    /* Make product modal fit single-screen height better on phones */
+    .product-panel {
+        width: 100%;
+        max-height: 92vh;
+        padding: 0.6rem;
+        border-radius: 10px;
+    }
+}
+
+/* Very small phones: slightly more compact */
+@media (max-width: 420px) {
+    nav a { padding: 10px 12px; font-size: 14px; }
+    header .logo { width: clamp(44px, 18vw, 80px); }
+    .product-image-wrap { aspect-ratio: 1 / 1; height: auto; }
+    .product-main-img { height: 180px; }
+}

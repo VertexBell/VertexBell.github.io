@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>DOOM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: monospace;
+      color: #67CC00;
+    }
+    #status-box { text-align: center; padding: 20px; }
+    #progress { margin-top: 8px; font-size: 0.9em; color: #aaa; }
+    #canvas {
+      display: block;
+      width: 960px;
+      height: 600px;
+      max-width: 98vw;
+      max-height: 85vh;
+      image-rendering: pixelated;
+      border: 2px solid #333;
+      outline: none;
+      cursor: crosshair;
+    }
+    #overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.55);
+      color: #67CC00;
+      font-size: 1.1em;
+      pointer-events: none;
+      user-select: none;
+    }
+    #wrap { position: relative; touch-action: none; }
+    body { overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <script>
+    try {
+      Object.defineProperty(navigator, 'getGamepads', {
+        value: function() { return []; },
+        writable: false, configurable: true
+      });
+    } catch(e) {}
+  </script>
+
+  <a href="index.html" style="position:fixed;top:12px;left:12px;z-index:10001;display:block;">
+    <img src="VB logo.svg" alt="VB logo" style="width:48px;height:auto;display:block;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.6));">
+  </a>
+
+  <div id="status-box">
+    <div id="status">Descargando...</div>
+    <div id="progress"></div>
+  </div>
+
+  <div id="wrap" style="display:none">
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="0"></canvas>
+    <div id="overlay">Click para jugar &middot; ESC para liberar el mouse</div>
+  </div>
+
+  <script>
+    var statusEl = document.getElementById('status');
+    var progressEl = document.getElementById('progress');
+    var wrap = document.getElementById('wrap');
+    var canvas = document.getElementById('canvas');
+    var overlay = document.getElementById('overlay');
+
+    canvas.addEventListener('click', function() {
+      canvas.focus();
+      var req = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+      if (req) req.call(canvas);
+    });
+
+    function updateOverlay() {
+      var locked = document.pointerLockElement === canvas || document.mozPointerLockElement === canvas;
+      overlay.style.display = locked ? 'none' : 'flex';
+    }
+    document.addEventListener('pointerlockchange', updateOverlay);
+    document.addEventListener('mozpointerlockchange', updateOverlay);
+
+    var Module = {
+      noImageDecoding: true,
+      preRun: [],
+      postRun: [],
+      print: function(t) { console.log(t); },
+      printErr: function(t) { console.error(t); },
+      canvas: canvas,
+      setStatus: function(text) {
+        if (text === Module.setStatus.last) return;
+        Module.setStatus.last = text;
+        var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+        if (m) {
+          statusEl.textContent = m[1];
+          progressEl.textContent = Math.round(parseInt(m[2]) / parseInt(m[4]) * 100) + '%';
+        } else {
+          statusEl.textContent = text;
+          progressEl.textContent = '';
+        }
+      },
+      totalDependencies: 0,
+      monitorRunDependencies: function(left) {
+        this.totalDependencies = Math.max(this.totalDependencies, left);
+        Module.setStatus(left
+          ? 'Preparando... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')'
+          : 'Listo.');
+        if (left === 0) {
+          document.getElementById('status-box').style.display = 'none';
+          wrap.style.display = 'block';
+          canvas.focus();
+        }
+      },
+      SDL_numSimultaneouslyQueuedBuffers: 1
+    };
+
+    Module.setStatus('Descargando...');
+    window.onerror = function() { Module.setStatus('Error — ver consola.'); };
+  </script>
+
+  <script>
+    var Module;
+    if (typeof Module === 'undefined') Module = eval('(function() { try { return Module || {} } catch(e) { return {} } })()');
+    if (!Module.expectedDataFileDownloads) {
+      Module.expectedDataFileDownloads = 0;
+      Module.finishedDataFileDownloads = 0;
+    }
+    Module.expectedDataFileDownloads++;
+    (function() {
+      var PACKAGE_PATH = "https://js-dos.com/games/";
+      var PACKAGE_NAME = '/home/caiiiycuk/js/js-dos.com/build/games/doom.exe.data';
+      var REMOTE_PACKAGE_BASE = PACKAGE_PATH + 'doom.exe.data';
+      var REMOTE_PACKAGE_NAME = typeof Module['locateFile'] === 'function'
+        ? Module['locateFile'](REMOTE_PACKAGE_BASE)
+        : ((Module['filePackagePrefixURL'] || '') + REMOTE_PACKAGE_BASE);
+      var REMOTE_PACKAGE_SIZE = 13731014;
+
+      function fetchRemotePackage(packageName, packageSize, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', packageName, true);
+        xhr.responseType = 'arraybuffer';
+        xhr.onprogress = function(event) {
+          var size = event.total || packageSize;
+          if (event.loaded) {
+            if (!xhr.addedTotal) {
+              xhr.addedTotal = true;
+              if (!Module.dataFileDownloads) Module.dataFileDownloads = {};
+              Module.dataFileDownloads[packageName] = { loaded: event.loaded, total: size };
+            } else {
+              Module.dataFileDownloads[packageName].loaded = event.loaded;
+            }
+            var total = 0, loaded = 0, num = 0;
+            for (var dl in Module.dataFileDownloads) {
+              total += Module.dataFileDownloads[dl].total;
+              loaded += Module.dataFileDownloads[dl].loaded;
+              num++;
+            }
+            total = Math.ceil(total * Module.expectedDataFileDownloads / num);
+            if (Module['setStatus']) Module['setStatus']('Descargando datos... (' + loaded + '/' + total + ')');
+          } else if (!Module.dataFileDownloads) {
+            if (Module['setStatus']) Module['setStatus']('Descargando datos...');
+          }
+        };
+        xhr.onload = function() { callback(xhr.response); };
+        xhr.send(null);
+      }
+
+      var fetched = null, fetchedCallback = null;
+      fetchRemotePackage(REMOTE_PACKAGE_NAME, REMOTE_PACKAGE_SIZE, function(data) {
+        if (fetchedCallback) { fetchedCallback(data); fetchedCallback = null; }
+        else { fetched = data; }
+      });
+
+      function runWithFS() {
+        function assert(check, msg) { if (!check) throw msg + new Error().stack; }
+
+        function DataRequest(start, end, crunched, audio) {
+          this.start = start; this.end = end;
+          this.crunched = crunched; this.audio = audio;
+        }
+        DataRequest.prototype = {
+          requests: {},
+          open: function(mode, name) {
+            this.name = name;
+            this.requests[name] = this;
+            Module['addRunDependency']('fp ' + this.name);
+          },
+          send: function() {},
+          onload: function() { this.finish(this.byteArray.subarray(this.start, this.end)); },
+          finish: function(byteArray) {
+            var that = this;
+            Module['FS_createPreloadedFile'](this.name, null, byteArray, true, true,
+              function() { Module['removeRunDependency']('fp ' + that.name); },
+              function() {
+                if (that.audio) Module['removeRunDependency']('fp ' + that.name);
+                else Module.printErr('Preloading file ' + that.name + ' failed');
+              }, false, true);
+            this.requests[this.name] = null;
+          }
+        };
+
+        new DataRequest(0,        67,       0,0).open('GET','/MODEM.NUM');
+        new DataRequest(67,       2603,     0,0).open('GET','/DWANGO.STR');
+        new DataRequest(2603,     6008,     0,0).open('GET','/MODEM.STR');
+        new DataRequest(6008,     82906,    0,0).open('GET','/DMFAQ66C.TXT');
+        new DataRequest(82906,    87595,    0,0).open('GET','/HELPME.TXT');
+        new DataRequest(87595,    108532,   0,0).open('GET','/DM.EXE');
+        new DataRequest(108532,   12516824, 0,0).open('GET','/DOOM.WAD');
+        new DataRequest(12516824, 12551396, 0,0).open('GET','/DMFAQ66D.TXT');
+        new DataRequest(12551396, 12556013, 0,0).open('GET','/ORDER.FRM');
+        new DataRequest(12556013, 12576270, 0,0).open('GET','/SERSETUP.EXE');
+        new DataRequest(12576270, 12577041, 0,0).open('GET','/DEFAULT.CFG');
+        new DataRequest(12577041, 12587664, 0,0).open('GET','/DWANGO.DOC');
+        new DataRequest(12587664, 12609653, 0,0).open('GET','/README.TXT');
+        new DataRequest(12609653, 12729854, 0,0).open('GET','/DMFAQ66A.TXT');
+        new DataRequest(12729854, 13445347, 0,0).open('GET','/DOOM.EXE');
+        new DataRequest(13445347, 13585941, 0,0).open('GET','/DMFAQ66B.TXT');
+        new DataRequest(13585941, 13603992, 0,0).open('GET','/IPXSETUP.EXE');
+        new DataRequest(13603992, 13677630, 0,0).open('GET','/DWANGO.EXE');
+        new DataRequest(13677630, 13677885, 0,0).open('GET','/DWANGO.SRV');
+        new DataRequest(13677885, 13684282, 0,0).open('GET','/DM.DOC');
+        new DataRequest(13684282, 13684349, 0,0).open('GET','/MODEM.CFG');
+        new DataRequest(13684349, 13731014, 0,0).open('GET','/SETUP.EXE');
+
+        function processPackageData(arrayBuffer) {
+          Module.finishedDataFileDownloads++;
+          assert(arrayBuffer, 'Loading data file failed.');
+          DataRequest.prototype.byteArray = new Uint8Array(arrayBuffer);
+          var reqs = DataRequest.prototype.requests;
+          for (var name in reqs) { if (reqs[name]) reqs[name].onload(); }
+          Module['removeRunDependency']('datafile_' + PACKAGE_NAME);
+        }
+
+        Module['addRunDependency']('datafile_' + PACKAGE_NAME);
+        if (!Module.preloadResults) Module.preloadResults = {};
+        Module.preloadResults[PACKAGE_NAME] = { fromCache: false };
+        if (fetched) { processPackageData(fetched); fetched = null; }
+        else { fetchedCallback = processPackageData; }
+      }
+
+      if (Module['calledRun']) runWithFS();
+      else {
+        if (!Module['preRun']) Module['preRun'] = [];
+        Module['preRun'].push(runWithFS);
+      }
+    })();
+
+    Module['arguments'] = [
+      '-c', 'mount c /',
+      '-c', 'c:',
+      '-c', 'DOOM.EXE',
+      '-c', 'exit'
+    ];
+  </script>
+
+  <script async src="https://js-dos.com/dosbox.js"></script>
+  <script src="doom-controls.js"></script>
+</body>
+</html>
