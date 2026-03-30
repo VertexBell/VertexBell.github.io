@@ -1,4 +1,4 @@
-<canvas id="bg-canvas"></canvas>
+<canvas id="bg-canvas" style="position:fixed; inset:0; z-index:-1;"></canvas>
 
 <script>
 (() => {
