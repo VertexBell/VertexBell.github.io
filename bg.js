@@ -5,7 +5,9 @@
   const palette = ['#D6B200','#DBBA14','#FFDB2E','#C2A100'];
 
   const rand = (a,b=0)=> b===0?Math.random()*a : a+Math.random()*(b-a);
-  const pick = arr => arr[(Math.random()*arr.length)|0];
+  const pick = arr => arr[(Math.random()*arr.length)|0;
+
+  const isMobile = /Android|iPhone|iPad|iPod|Touch/i.test(navigator.userAgent) || 'ontouchstart' in window;
 
   const canvas = document.getElementById('bg-canvas');
   if (!canvas) return;
@@ -25,40 +27,34 @@
   addEventListener('resize', resize, {passive:true});
   resize();
 
-  const CONFIG = [
-    {count:4, size:[220,380], speed:0.08, alpha:0.18},
-    {count:8, size:[80,140], speed:0.25, alpha:0.28},
-    {count:14, size:[20,50], speed:0.6, alpha:0.6}
-  ];
+  const TOTAL = isMobile ? 6 : 11;
 
   class Shape{
-    constructor(cfg){
-      this.cfg = cfg;
+    constructor(){
       this.reset(true);
     }
 
     reset(init){
-      const c = this.cfg;
+      this.s = rand(40, 260);
 
-      this.s = rand(c.size[0], c.size[1]);
       this.x = rand(-0.1*w,1.1*w);
       this.y = rand(-0.1*h,1.1*h);
 
-      this.vx = rand(-0.08,0.08)*c.speed;
-      this.vy = rand(-0.08,0.08)*c.speed;
+      this.vx = rand(-0.03,0.03);
+      this.vy = rand(-0.03,0.03);
 
       this.rot = rand(Math.PI*2);
-      this.rotSpd = rand(-0.01,0.01);
+      this.rotSpd = rand(-0.005,0.005);
 
-      this.ttl = rand(12,28);
+      this.ttl = rand(20,40);
       this.age = init ? rand(0,this.ttl) : 0;
 
       this.scale = rand(0.9,1.1);
-      this.alpha = rand(0.5,1)*c.alpha;
+      this.alpha = rand(0.15,0.6);
 
       this.color = pick(palette);
 
-      this.points = Math.random()<0.92
+      this.points = Math.random()<0.9
         ? [[0,-0.6],[0.5,0.4],[-0.5,0.4]]
         : this.poly();
 
@@ -71,7 +67,7 @@
       const pts = [];
       for(let i=0;i<sides;i++){
         const a = i/sides*Math.PI*2;
-        const r = 0.7 + Math.random()*0.4;
+        const r = 0.7 + Math.random()*0.3;
         pts.push([Math.cos(a)*r, Math.sin(a)*r]);
       }
       return pts;
@@ -111,9 +107,7 @@
   }
 
   const shapes = [];
-  CONFIG.forEach(c=>{
-    for(let i=0;i<c.count;i++) shapes.push(new Shape(c));
-  });
+  for(let i=0;i<TOTAL;i++) shapes.push(new Shape());
 
   let last = performance.now()/1000;
 
