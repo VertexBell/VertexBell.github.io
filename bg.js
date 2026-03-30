@@ -5,7 +5,7 @@
   const palette = ['#D6B200','#DBBA14','#FFDB2E','#C2A100'];
 
   const rand = (a,b=0)=> b===0?Math.random()*a : a+Math.random()*(b-a);
-  const pick = arr => arr[(Math.random()*arr.length)|0;
+  const pick = arr => arr[(Math.random()*arr.length)|0];
 
   const isMobile = /Android|iPhone|iPad|iPod|Touch/i.test(navigator.userAgent) || 'ontouchstart' in window;
 
