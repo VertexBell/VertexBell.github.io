@@ -1,274 +1,200 @@
-(function() {
+(function () {
   'use strict';
 
-  var isMobile = /Android|iPhone|iPad|iPod|Touch/i.test(navigator.userAgent) || ('ontouchstart' in window);
+  const isMobile =
+    /Android|iPhone|iPad|iPod|Touch/i.test(navigator.userAgent) ||
+    'ontouchstart' in window;
 
-  // Key codes used by DOSBox/DOOM
-  var KEY = {
-    LEFT:    37,
-    RIGHT:   39,
-    UP:      38,
-    DOWN:    40,
-    CTRL:    17,
-    ALT:     18,
-    ESC:     27,
-    SPACE:   32,
-    E:       69,
+  const KEY = {
+    LEFT: 37,
+    RIGHT: 39,
+    UP: 38,
+    DOWN: 40,
+    CTRL: 17,
+    ESC: 27,
+    E: 69
   };
 
-  function fakeKey(keyCode, type) {
-    var ev = new KeyboardEvent(type, {
-      bubbles: true,
-      cancelable: true,
-      keyCode: keyCode,
-      which: keyCode
-    });
-    Object.defineProperty(ev, 'keyCode', { value: keyCode });
-    document.dispatchEvent(ev);
+  function fakeKey(code, type) {
+    const e = new Event(type, { bubbles: true, cancelable: true });
+    e.keyCode = code;
+    e.which = code;
+    document.dispatchEvent(e);
   }
 
-  function pressKey(keyCode) {
-    fakeKey(keyCode, 'keydown');
+  const keyState = {};
+
+  function press(code) {
+    if (keyState[code]) return;
+    keyState[code] = true;
+    fakeKey(code, 'keydown');
   }
 
-  function releaseKey(keyCode) {
-    fakeKey(keyCode, 'keyup');
+  function release(code) {
+    if (!keyState[code]) return;
+    keyState[code] = false;
+    fakeKey(code, 'keyup');
   }
 
-  function tapKey(keyCode) {
-    pressKey(keyCode);
-    setTimeout(function() { releaseKey(keyCode); }, 80);
+  function tap(code) {
+    press(code);
+    setTimeout(() => release(code), 60);
   }
 
-  // Remap W -> UP, S -> DOWN
-  document.addEventListener('keydown', function(e) {
-    if ((e.keyCode === 87 || e.keyCode === 83) && !e._remapped) {
-      e.stopImmediatePropagation();
-      e.preventDefault();
-      var target = e.keyCode === 87 ? KEY.UP : KEY.DOWN;
-      var ev = new KeyboardEvent('keydown', { bubbles: true, cancelable: true });
-      Object.defineProperty(ev, 'keyCode', { value: target });
-      Object.defineProperty(ev, 'which',   { value: target });
-      ev._remapped = true;
-      document.dispatchEvent(ev);
-    }
+  // ─── KEY REMAP ─────────────────────────
+
+  const remap = {
+    87: KEY.UP,   // W
+    83: KEY.DOWN, // S
+    69: KEY.ESC   // E
+  };
+
+  document.addEventListener('keydown', e => {
+    const k = remap[e.keyCode];
+    if (!k) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    press(k);
   }, true);
 
-  document.addEventListener('keyup', function(e) {
-    if ((e.keyCode === 87 || e.keyCode === 83) && !e._remapped) {
-      e.stopImmediatePropagation();
-      e.preventDefault();
-      var target = e.keyCode === 87 ? KEY.UP : KEY.DOWN;
-      var ev = new KeyboardEvent('keyup', { bubbles: true, cancelable: true });
-      Object.defineProperty(ev, 'keyCode', { value: target });
-      Object.defineProperty(ev, 'which',   { value: target });
-      ev._remapped = true;
-      document.dispatchEvent(ev);
-    }
+  document.addEventListener('keyup', e => {
+    const k = remap[e.keyCode];
+    if (!k) return;
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    release(k);
   }, true);
 
-  // Remap E -> ESC (interact/open door)
-  document.addEventListener('keydown', function(e) {
-    if (e.keyCode === KEY.E && !e._remapped) {
-      e.stopImmediatePropagation();
-      e.preventDefault();
-      var ev = new KeyboardEvent('keydown', { bubbles: true, cancelable: true });
-      Object.defineProperty(ev, 'keyCode', { value: KEY.ESC });
-      Object.defineProperty(ev, 'which',   { value: KEY.ESC });
-      ev._remapped = true;
-      document.dispatchEvent(ev);
-    }
-  }, true);
+  // ─── MOUSE ────────────────────────────
 
-  document.addEventListener('keyup', function(e) {
-    if (e.keyCode === KEY.E && !e._remapped) {
-      e.stopImmediatePropagation();
-      e.preventDefault();
-      var ev = new KeyboardEvent('keyup', { bubbles: true, cancelable: true });
-      Object.defineProperty(ev, 'keyCode', { value: KEY.ESC });
-      Object.defineProperty(ev, 'which',   { value: KEY.ESC });
-      ev._remapped = true;
-      document.dispatchEvent(ev);
-    }
-  }, true);
+  let mouseTimeout = null;
 
-  // Left click -> CTRL (shoot)
-  document.addEventListener('mousedown', function(e) {
-    if (e.button === 0) pressKey(KEY.CTRL);
-  });
-  document.addEventListener('mouseup', function(e) {
-    if (e.button === 0) releaseKey(KEY.CTRL);
+  document.addEventListener('mousedown', e => {
+    if (e.button === 0) press(KEY.CTRL);
   });
 
-  // Mouse horizontal movement -> LEFT/RIGHT arrows
-  var mouseThreshold = 4;
-  var mouseTimeout = null;
-  document.addEventListener('mousemove', function(e) {
-    var dx = e.movementX || e.mozMovementX || 0;
-    if (Math.abs(dx) < mouseThreshold) return;
+  document.addEventListener('mouseup', e => {
+    if (e.button === 0) release(KEY.CTRL);
+  });
 
-    releaseKey(KEY.LEFT);
-    releaseKey(KEY.RIGHT);
-    if (mouseTimeout) clearTimeout(mouseTimeout);
+  document.addEventListener('mousemove', e => {
+    const dx = e.movementX || 0;
+    if (Math.abs(dx) < 3) return;
 
-    if (dx < 0) pressKey(KEY.LEFT);
-    else         pressKey(KEY.RIGHT);
+    if (dx < 0) {
+      press(KEY.LEFT);
+      release(KEY.RIGHT);
+    } else {
+      press(KEY.RIGHT);
+      release(KEY.LEFT);
+    }
 
-    mouseTimeout = setTimeout(function() {
-      releaseKey(KEY.LEFT);
-      releaseKey(KEY.RIGHT);
-    }, 80);
+    clearTimeout(mouseTimeout);
+    mouseTimeout = setTimeout(() => {
+      release(KEY.LEFT);
+      release(KEY.RIGHT);
+    }, 70);
   });
 
   if (!isMobile) return;
 
-  // ─── MOBILE UI ────────────────────────────────────────────────────────────
+  // ─── MOBILE UI ────────────────────────
 
-  var css = `
-    #dc-hud {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      pointer-events: none;
-      font-family: monospace;
+  const style = document.createElement('style');
+  style.textContent = `
+    #hud {position:fixed;inset:0;z-index:9999;pointer-events:none}
+    .b{
+      position:absolute;
+      pointer-events:all;
+      border-radius:50%;
+      background:rgba(0,0,0,.4);
+      border:2px solid rgba(103,204,0,.6);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font:bold 18px monospace;
     }
-
-    .dc-btn {
-      position: absolute;
-      pointer-events: all;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      font-weight: bold;
-      color: rgba(255,255,255,0.85);
-      background: rgba(0,0,0,0.45);
-      border: 2px solid rgba(103,204,0,0.6);
-      box-shadow: 0 0 12px rgba(103,204,0,0.25);
-      transition: background 0.08s, box-shadow 0.08s;
-    }
-
-    .dc-btn.active {
-      background: rgba(103,204,0,0.35);
-      box-shadow: 0 0 20px rgba(103,204,0,0.6);
-    }
-
-    #dc-fire {
-      width: 90px; height: 90px;
-      right: 28px; bottom: 120px;
-      font-size: 28px;
-    }
-
-    #dc-use {
-      width: 68px; height: 68px;
-      right: 130px; bottom: 130px;
-      font-size: 18px;
-      border-color: rgba(255,180,0,0.6);
-    }
-
-    #dc-up {
-      width: 68px; height: 68px;
-      left: 90px; bottom: 210px;
-    }
-
-    #dc-down {
-      width: 68px; height: 68px;
-      left: 90px; bottom: 120px;
-    }
-
-    #dc-look {
-      position: absolute;
-      left: 0; top: 0; right: 50%; bottom: 0;
-      pointer-events: all;
-      touch-action: none;
-    }
+    .a{background:rgba(103,204,0,.4)}
+    #f{right:20px;bottom:100px;width:80px;height:80px}
+    #u{right:110px;bottom:120px;width:60px;height:60px}
+    #up{left:70px;bottom:180px;width:60px;height:60px}
+    #dn{left:70px;bottom:110px;width:60px;height:60px}
+    #look{position:absolute;left:0;top:0;right:50%;bottom:0;pointer-events:all}
   `;
-
-  var style = document.createElement('style');
-  style.textContent = css;
   document.head.appendChild(style);
 
-  var hud = document.createElement('div');
-  hud.id = 'dc-hud';
+  const hud = document.createElement('div');
+  hud.id = 'hud';
   hud.innerHTML = `
-    <div id="dc-look"></div>
-    <div class="dc-btn" id="dc-up">▲</div>
-    <div class="dc-btn" id="dc-down">▼</div>
-    <div class="dc-btn" id="dc-use">USE</div>
-    <div class="dc-btn" id="dc-fire">🔫</div>
+    <div id="look"></div>
+    <div id="up" class="b">▲</div>
+    <div id="dn" class="b">▼</div>
+    <div id="u" class="b">USE</div>
+    <div id="f" class="b">●</div>
   `;
   document.body.appendChild(hud);
 
-  function holdKey(el, keyCode) {
-    el.addEventListener('touchstart', function(e) {
+  function hold(el, code) {
+    el.addEventListener('touchstart', e => {
       e.preventDefault();
-      el.classList.add('active');
-      pressKey(keyCode);
-    }, { passive: false });
+      el.classList.add('a');
+      press(code);
+    }, { passive:false });
 
-    el.addEventListener('touchend', function(e) {
-      e.preventDefault();
-      el.classList.remove('active');
-      releaseKey(keyCode);
-    }, { passive: false });
+    el.addEventListener('touchend', () => {
+      el.classList.remove('a');
+      release(code);
+    });
 
-    el.addEventListener('touchcancel', function(e) {
-      el.classList.remove('active');
-      releaseKey(keyCode);
+    el.addEventListener('touchcancel', () => {
+      el.classList.remove('a');
+      release(code);
     });
   }
 
-  holdKey(document.getElementById('dc-up'),   KEY.UP);
-  holdKey(document.getElementById('dc-down'), KEY.DOWN);
-  holdKey(document.getElementById('dc-fire'), KEY.CTRL);
+  hold(up, KEY.UP);
+  hold(dn, KEY.DOWN);
+  hold(f, KEY.CTRL);
 
-  var useBtn = document.getElementById('dc-use');
-  useBtn.addEventListener('touchstart', function(e) {
+  u.addEventListener('touchstart', e => {
     e.preventDefault();
-    useBtn.classList.add('active');
-    tapKey(KEY.ESC);
-  }, { passive: false });
-  useBtn.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    useBtn.classList.remove('active');
-  }, { passive: false });
+    u.classList.add('a');
+    tap(KEY.ESC);
+  }, { passive:false });
 
-  // Left side swipe -> turn camera
-  var lookZone = document.getElementById('dc-look');
-  var lookStartX = null;
-  var lookLastX  = null;
-  var lookInterval = null;
+  u.addEventListener('touchend', () => u.classList.remove('a'));
 
-  lookZone.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    var t = e.touches[0];
-    lookStartX = t.clientX;
-    lookLastX  = t.clientX;
-  }, { passive: false });
+  // LOOK
 
-  lookZone.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    var t = e.touches[0];
-    var dx = t.clientX - lookLastX;
-    lookLastX = t.clientX;
+  let lastX = null;
 
-    releaseKey(KEY.LEFT);
-    releaseKey(KEY.RIGHT);
-    if (Math.abs(dx) > 2) {
-      if (dx < 0) pressKey(KEY.LEFT);
-      else         pressKey(KEY.RIGHT);
+  look.addEventListener('touchstart', e => {
+    lastX = e.touches[0].clientX;
+  }, { passive:false });
+
+  look.addEventListener('touchmove', e => {
+    const x = e.touches[0].clientX;
+    const dx = x - lastX;
+    lastX = x;
+
+    if (Math.abs(dx) < 2) return;
+
+    if (dx < 0) {
+      press(KEY.LEFT);
+      release(KEY.RIGHT);
+    } else {
+      press(KEY.RIGHT);
+      release(KEY.LEFT);
     }
-  }, { passive: false });
+  }, { passive:false });
 
-  lookZone.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    releaseKey(KEY.LEFT);
-    releaseKey(KEY.RIGHT);
-    lookStartX = null;
-  }, { passive: false });
+  look.addEventListener('touchend', () => {
+    release(KEY.LEFT);
+    release(KEY.RIGHT);
+    lastX = null;
+  });
 
 })();
